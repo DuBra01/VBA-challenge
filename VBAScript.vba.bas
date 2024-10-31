@@ -1,11 +1,19 @@
-Attribute VB_Name = "Module1"
-Sub GenerateUniqueTickersForAllQuarters()
+Sub SockAnalysis()
     Dim ws As Worksheet
     Dim lastRow As Long, i As Long
     Dim ticker As Variant ' Declare as Variant to handle any value
     Dim outputRow As Long
     Dim tickerCollection As New Collection
     Dim sheetName As String
+    Dim j As Long
+    Dim firstRow As Long, lastRowOfTicker As Long
+    Dim openingPrice As Double, closingPrice As Double
+    Dim lastUniqueRow As Long
+    Dim quarterlyChange As Double, percentChange As Double
+    Dim totalVolume As Double
+    Dim k As Long
+    Dim maxIncrease As Double, maxDecrease As Double, maxVolume As Double
+    Dim tickerMaxIncrease As String, tickerMaxDecrease As String, tickerMaxVolume As String
 
     ' Loop through the required sheets (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
@@ -41,17 +49,6 @@ Sub GenerateUniqueTickersForAllQuarters()
         End If
     Next ws
 
-    ' Inform the user that the process is complete
-    MsgBox "Unique tickers have been listed in column I for all quarters.", vbInformation
-End Sub
-
-Sub CalculateTickerChangeForAllQuarters()
-    Dim ws As Worksheet
-    Dim lastRow As Long, i As Long, j As Long
-    Dim ticker As String
-    Dim firstRow As Long, lastRowOfTicker As Long
-    Dim openingPrice As Double, closingPrice As Double
-
     ' Loop through each relevant sheet (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name = "Q1" Or ws.Name = "Q2" Or ws.Name = "Q3" Or ws.Name = "Q4" Then
@@ -82,14 +79,6 @@ Sub CalculateTickerChangeForAllQuarters()
         End If
     Next ws
 
-    ' Inform the user that the process is complete
-    MsgBox "Ticker change has been calculated and listed in column J for all quarters.", vbInformation
-End Sub
-
-Sub ApplyConditionalFormattingToAllQuarters()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-
     ' Loop through all relevant sheets (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name Like "Q*" Then
@@ -115,37 +104,26 @@ Sub ApplyConditionalFormattingToAllQuarters()
         End If
     Next ws
 
-    ' Inform the user that the process is complete
-    MsgBox "Conditional formatting applied to column J for all quarters.", vbInformation
-End Sub
-
-Sub CalculatePercentChangeFromFirstOpening()
-    Dim ws As Worksheet
-    Dim lastUniqueRow As Long, firstRow As Long
-    Dim ticker As String
-    Dim openingPrice As Double, quarterlyChange As Double, percentChange As Double
-    Dim i As Long
-
-    ' Loop a través de todas las hojas relevantes (Q1, Q2, Q3, Q4)
+    ' Loop a trav√©s de todas las hojas relevantes (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name Like "Q*" Then
-            ' Encuentra la última fila con datos en la columna I (unique tickers)
+            ' Encuentra la √∫ltima fila con datos en la columna I (unique tickers)
             lastUniqueRow = ws.Cells(ws.Rows.Count, 9).End(xlUp).Row
 
-            ' Añade el encabezado "Percent Change" en K1
+            ' A√±ade el encabezado "Percent Change" en K1
             ws.Cells(1, 11).Value = "Percent Change"
 
-            ' Loop para calcular el cambio porcentual para cada ticker único
+            ' Loop para calcular el cambio porcentual para cada ticker √∫nico
             For i = 2 To lastUniqueRow ' Comienza en la fila 2 para omitir el encabezado
-                ticker = ws.Cells(i, 9).Value ' Obtener el ticker único
+                ticker = ws.Cells(i, 9).Value ' Obtener el ticker √∫nico
 
                 ' Encuentra la primera ocurrencia del ticker en la columna A
                 firstRow = ws.Columns(1).Find(What:=ticker, LookAt:=xlWhole).Row
 
-                ' Obtén el precio de apertura de la primera ocurrencia (columna C)
+                ' Obt√©n el precio de apertura de la primera ocurrencia (columna C)
                 openingPrice = ws.Cells(firstRow, 3).Value
 
-                ' Obtén el Quarterly Change de la columna J
+                ' Obt√©n el Quarterly Change de la columna J
                 quarterlyChange = ws.Cells(i, 10).Value
 
                 ' Verifica que el precio de apertura no sea 0 para evitar errores
@@ -164,39 +142,28 @@ Sub CalculatePercentChangeFromFirstOpening()
             ' Formatea la columna K como porcentaje con dos decimales
             ws.Columns(11).NumberFormat = "0.00%"
 
-            ' Ajusta automáticamente las columnas para que se vean bien
+            ' Ajusta autom√°ticamente las columnas para que se vean bien
             ws.Columns.AutoFit
         End If
     Next ws
-
-    ' Informa al usuario que el proceso ha finalizado
-    MsgBox "El cambio porcentual ha sido calculado y formateado como porcentaje en la columna K para todos los trimestres.", vbInformation
-End Sub
-
-Sub CalculateTotalStockVolume()
-    Dim ws As Worksheet
-    Dim lastUniqueRow As Long, firstRow As Long, lastRow As Long
-    Dim ticker As String
-    Dim totalVolume As Double
-    Dim i As Long, k As Long
-
-    ' Loop a través de todas las hojas relevantes (Q1, Q2, Q3, Q4)
+   
+    ' Loop a trav√©s de todas las hojas relevantes (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name Like "Q*" Then
-            ' Encuentra la última fila con datos en la columna I (unique tickers)
+            ' Encuentra la √∫ltima fila con datos en la columna I (unique tickers)
             lastUniqueRow = ws.Cells(ws.Rows.Count, 9).End(xlUp).Row
 
-            ' Añade el encabezado "Total Stock Volume" en L1
+            ' A√±ade el encabezado "Total Stock Volume" en L1
             ws.Cells(1, 12).Value = "Total Stock Volume"
 
-            ' Loop para calcular el volumen total para cada ticker único
+            ' Loop para calcular el volumen total para cada ticker √∫nico
             For i = 2 To lastUniqueRow ' Comienza en la fila 2 para omitir el encabezado
-                ticker = ws.Cells(i, 9).Value ' Obtener el ticker único
+                ticker = ws.Cells(i, 9).Value ' Obtener el ticker √∫nico
 
                 ' Encuentra la primera ocurrencia del ticker en la columna A
                 firstRow = ws.Columns(1).Find(What:=ticker, LookAt:=xlWhole).Row
 
-                ' Encuentra la última ocurrencia del ticker en la columna A
+                ' Encuentra la √∫ltima ocurrencia del ticker en la columna A
                 lastRow = ws.Columns(1).Find(What:=ticker, LookAt:=xlWhole, _
                                              SearchDirection:=xlPrevious).Row
 
@@ -212,31 +179,20 @@ Sub CalculateTotalStockVolume()
                 ws.Cells(i, 12).Value = totalVolume
             Next i
 
-            ' Ajusta automáticamente las columnas para que se vean bien
+            ' Ajusta autom√°ticamente las columnas para que se vean bien
             ws.Columns.AutoFit
         End If
     Next ws
 
-    ' Informa al usuario que el proceso ha finalizado
-    MsgBox "El volumen total ha sido calculado y listado en la columna L para todos los trimestres.", vbInformation
-End Sub
-
-Sub CalculateGreatestChangesAndVolumes()
-    Dim ws As Worksheet
-    Dim lastRow As Long
-    Dim maxIncrease As Double, maxDecrease As Double, maxVolume As Double
-    Dim tickerMaxIncrease As String, tickerMaxDecrease As String, tickerMaxVolume As String
-    Dim i As Long
-
-    ' Loop a través de todas las hojas relevantes (Q1, Q2, Q3, Q4)
+    ' Loop a trav√©s de todas las hojas relevantes (Q1, Q2, Q3, Q4)
     For Each ws In ThisWorkbook.Worksheets
         If ws.Name Like "Q*" Then
-            ' Encuentra la última fila con datos en la columna I (unique tickers)
+            ' Encuentra la √∫ltima fila con datos en la columna I (unique tickers)
             lastRow = ws.Cells(ws.Rows.Count, 9).End(xlUp).Row
 
-            ' Inicializa variables para el máximo y mínimo
-            maxIncrease = -1E+308 ' Mínimo posible para buscar el máximo
-            maxDecrease = 1E+308  ' Máximo posible para buscar el mínimo
+            ' Inicializa variables para el m√°ximo y m√≠nimo
+            maxIncrease = -1E+308 ' M√≠nimo posible para buscar el m√°ximo
+            maxDecrease = 1E+308  ' M√°ximo posible para buscar el m√≠nimo
             maxVolume = 0
 
             ' Loop para encontrar los mayores y menores valores
@@ -260,11 +216,11 @@ Sub CalculateGreatestChangesAndVolumes()
                 End If
             Next i
 
-            ' Añade encabezados en P1 y Q1
+            ' A√±ade encabezados en P1 y Q1
             ws.Cells(1, 16).Value = "Ticker"
             ws.Cells(1, 17).Value = "Value"
 
-            ' Añade los resultados en O2, O3 y O4
+            ' A√±ade los resultados en O2, O3 y O4
             ws.Cells(2, 15).Value = "Greatest % Increase"
             ws.Cells(3, 15).Value = "Greatest % Decrease"
             ws.Cells(4, 15).Value = "Greatest Total Volume"
@@ -281,12 +237,11 @@ Sub CalculateGreatestChangesAndVolumes()
             ws.Cells(2, 17).NumberFormat = "0.00%"
             ws.Cells(3, 17).NumberFormat = "0.00%"
 
-            ' Ajusta automáticamente las columnas para que se vean bien
+            ' Ajusta autom√°ticamente las columnas para que se vean bien
             ws.Columns.AutoFit
         End If
     Next ws
 
     ' Informa al usuario que el proceso ha finalizado
-    MsgBox "Los mayores cambios y volúmenes han sido calculados y listados.", vbInformation
+    MsgBox "All operations have been completed.", vbInformation
 End Sub
-
